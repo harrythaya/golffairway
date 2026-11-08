@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fairway</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#1F5C3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EDF2EE;--surface:#FFFFFF;--ink:#14301F;--muted:#5A6E60;--line:#CFDAD1;--accent:#1F5C3E;--onaccent:#FFFFFF;--sand:#E6CF9A;--fairway:#BFD8A8;--green:#8FC27A;--water:#9CC3D5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1A14;--surface:#182A1F;--ink:#E6F0E8;--muted:#9BB0A1;--line:#2A4132;--accent:#7FC79A;--onaccent:#0F1A14;--sand:#7A6A3E;--fairway:#2F5A3A;--green:#3F7A4B;--water:#2C5668}}
+:root[data-theme="dark"]{--bg:#0F1A14;--surface:#182A1F;--ink:#E6F0E8;--muted:#9BB0A1;--line:#2A4132;--accent:#7FC79A;--onaccent:#0F1A14;--sand:#7A6A3E;--fairway:#2F5A3A;--green:#3F7A4B;--water:#2C5668}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 "Bricolage Grotesque",system-ui,sans-serif;display:flex;flex-direction:column;max-width:520px;margin:0 auto}
+header{padding:16px 20px 8px}
+h1{font-size:26px;font-weight:800;margin:0;letter-spacing:-.02em}
+h2{font-size:20px;font-weight:600;margin:0 0 4px}
+p{margin:0 0 12px}
+.sub{color:var(--muted);font-size:14px}
+main{flex:1;overflow-y:auto;padding:8px 20px 20px}
+nav{display:flex;border-top:1px solid var(--line);background:var(--surface)}
+nav button{flex:1;padding:12px 4px;border:0;background:none;color:var(--muted);font:600 14px inherit;font-family:inherit;cursor:pointer}
+nav button[aria-selected="true"]{color:var(--accent);box-shadow:inset 0 3px 0 var(--accent)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.list button.row{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;padding:16px;margin-bottom:8px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:600 17px inherit;font-family:inherit;cursor:pointer}
+.row small{color:var(--muted);font-weight:400;font-size:14px}
+.btn{padding:12px 18px;border:0;border-radius:10px;background:var(--accent);color:var(--onaccent);font:600 16px inherit;font-family:inherit;cursor:pointer}
+.btn.ghost{background:none;color:var(--accent);border:1px solid var(--accent)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+.steps{padding-left:0;list-style:none;margin:12px 0}
+.steps li{padding:12px 0;border-bottom:1px solid var(--line)}
+.steps b{display:block}
+.back{background:none;border:0;color:var(--accent);font:600 15px inherit;font-family:inherit;padding:8px 0;cursor:pointer}
+svg.hole{width:100%;border-radius:12px;background:var(--fairway);touch-action:manipulation;cursor:crosshair}
+.shots{margin:8px 0;padding:0;list-style:none;font-size:15px}
+.shots li{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)}
+.chat{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.msg{padding:10px 14px;border-radius:14px;max-width:85%}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--onaccent)}
+.msg.ai{align-self:flex-start;background:var(--surface);border:1px solid var(--line)}
+.inputrow{display:flex;gap:8px}
+input{flex:1;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chips button{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:14px inherit;font-family:inherit;cursor:pointer}
+.tag{display:inline-block;font-size:13px;color:var(--muted)}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin:4px 0 12px}
+.bar i{display:block;height:100%;background:var(--accent)}
+</style>
+</head>
+<body>
+<header><h1>Fairway</h1><div class="sub">Your golf coach</div></header>
+<main id="view"></main>
+<nav role="tablist" id="tabs"></nav>
+<script>
+const clubs={
+Driver:{note:"Longest club, off the tee",steps:[["Stance","Feet just outside shoulder width, ball off your front heel."],["Tilt","Lean slightly away from the target so you can sweep the ball up."],["Backswing","Turn your shoulders, keep the left arm long, club parallel at the top."],["Downswing","Start with the hips, let the arms follow."],["Finish","Weight on your front foot, belt buckle facing the target."]]},
+"7-iron":{note:"Your all-round iron",steps:[["Stance","Feet shoulder width, ball in the middle of your stance."],["Posture","Hinge at the hips, back straight, arms hanging freely."],["Backswing","Three-quarter turn, wrists set halfway up."],["Impact","Hands slightly ahead of the ball, hit down so you strike the ball first, then the turf."],["Finish","Chest to the target, balanced for a full second."]]},
+"Pitching wedge":{note:"Short approach shots",steps:[["Stance","Narrow feet, 60% of weight on your front foot."],["Setup","Ball center, hands slightly forward."],["Swing","Hip-high to hip-high, keep the pace smooth."],["Finish","Hold the finish so you control distance."]]},
+Putter:{note:"On the green",steps:[["Stance","Eyes over the ball, feet shoulder width."],["Grip","Light pressure, thumbs down the flat of the grip."],["Stroke","Rock the shoulders like a pendulum, no wrist."],["Finish","Make the follow-through as long as the backstroke."]]}};
+const gear=[["Driver","From $200–$600"],["Iron set","From $400–$1,200"],["Putter","From $80–$400"],["Golf glove","From $15"],["Rangefinder","From $150"],["Golf balls (dozen)","From $25"]];
+const replies=[[/slice/,"A slice usually means an open clubface at impact or an outside-in swing path. Try a stronger grip (rotate both hands slightly away from the target) and feel the club swing out toward right field on the way down."],[/putt/,"Keep your head still until the ball is gone, and match your backstroke length to the distance. Practice 3-foot putts until you make ten in a row."],[/driver|tee/,"Tee the ball so half of it is above the driver’s crown, and strike it on a slight upswing. Wider stance, smooth tempo."],[/chip|short/,"Use a narrow stance, weight forward, and rock the shoulders. Pick a landing spot and let the ball roll out."],[/club|which/,"A rough guide: driver off the tee, 7-iron for 140–150 yards, pitching wedge around 100–120. Your own carry distances matter more, so track them on the course tab."]];
+const tabs=[["swings","Swings"],["track","Analyze"],["course","Course"],["shop","Gear"],["coach","Coach"]];
+let tab="swings",club=null,shots=[],chat=[["ai","Hi, I’m your golf coach. Ask me about your swing, club choice, or short game."]],analyzed=false;
+const $=s=>document.querySelector(s),view=$("#view");
+function renderTabs(){$("#tabs").innerHTML=tabs.map(([k,l])=>`<button role="tab" aria-selected="${k===tab}" data-t="${k}">${l}</button>`).join("");$("#tabs").onclick=e=>{const t=e.target.dataset.t;if(t){tab=t;club=null;render()}}}
+function render(){renderTabs();({swings,track,course,shop,coach})[tab]();}
+function swings(){
+if(club){const c=clubs[club];view.innerHTML=`<button class="back" id="b">‹ All clubs</button><h2>${club}</h2><p class="sub">${c.note}</p><div class="card" style="text-align:center"><svg viewBox="0 0 200 90" width="100%" role="img" aria-label="Swing path diagram"><path d="M30 75 Q60 5 110 20 T175 70" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="5 5"/><circle cx="110" cy="78" r="5" fill="var(--ink)"/><text x="100" y="12" font-size="9" fill="var(--muted)" text-anchor="middle">Video goes here</text></svg></div><ol class="steps">${c.steps.map(s=>`<li><b>${s[0]}</b>${s[1]}</li>`).join("")}</ol>`;$("#b").onclick=()=>{club=null;swings()};return}
+view.innerHTML=`<h2>Pick a club</h2><p class="sub">Tap one to see the technique.</p><div class="list">${Object.keys(clubs).map(k=>`<button class="row" data-c="${k}"><span>${k}<br><small>${clubs[k].note}</small></span><span aria-hidden="true">›</span></button>`).join("")}</div>`;
+view.onclick=e=>{const b=e.target.closest("[data-c]");if(b){club=b.dataset.c;swings()}}}
+function track(){
+view.onclick=null;
+view.innerHTML=`<h2>Analyze your swing</h2><p class="sub">Film your swing from behind or the side. Scores below are samples until real analysis is added.</p><input type="file" accept="video/*" capture="environment" id="vid" hidden><button class="btn" id="rec">Record a swing</button><video id="pv" controls playsinline style="width:100%;margin-top:16px;border-radius:12px;display:none"></video><div id="res"></div>`;
+$("#rec").onclick=()=>$("#vid").click();
+$("#vid").onchange=e=>{const f=e.target.files[0];if(!f)return;const v=$("#pv");v.src=URL.createObjectURL(f);v.style.display="block";$("#rec").textContent="Record again";$("#res").innerHTML=`<div class="card" style="margin-top:16px"><b>Sample results</b><p class="tag">Real scoring would come from pose detection on your video.</p>${[["Tempo",78],["Hip rotation",55],["Head stability",84],["Follow-through",62]].map(([n,v])=>`<div>${n} <span class="tag">${v}/100</span></div><div class="bar"><i style="width:${v}%"></i></div>`).join("")}<p><b>Work on:</b> hip rotation. Try the 7-iron drill: start the downswing with your hips, not your arms.</p></div>`}}
+function course(){
+view.innerHTML=`<h2>Track your round</h2><p class="sub">Tap the hole map where each shot lands. Hole 1, par 4, 380 yards.</p><svg class="hole" id="map" viewBox="0 0 300 400" role="img" aria-label="Hole map. Tap to mark a shot."><path d="M110 380 C90 300 130 240 120 160 C115 110 140 70 150 50 L190 50 C200 80 190 130 185 170 C180 250 190 310 175 380Z" fill="var(--green)" opacity=".7"/><ellipse cx="170" cy="55" rx="34" ry="26" fill="var(--green)"/><circle cx="170" cy="52" r="3" fill="var(--ink)"/><ellipse cx="215" cy="95" rx="16" ry="10" fill="var(--sand)"/><ellipse cx="75" cy="200" rx="30" ry="18" fill="var(--water)"/><rect x="132" y="372" width="40" height="10" rx="3" fill="var(--ink)"/><g id="pts"></g></svg><ul class="shots" id="sl"></ul><div style="display:flex;gap:8px"><button class="btn ghost" id="un">Undo</button><button class="btn ghost" id="cl">Clear</button></div>`;
+const map=$("#map"),pts=$("#pts"),sl=$("#sl");const start={x:152,y:377};
+function draw(){let p=start,h="",l="";shots.forEach((s,i)=>{const d=Math.round(Math.hypot(s.x-p.x,s.y-p.y)*0.95);h+=`<line x1="${p.x}" y1="${p.y}" x2="${s.x}" y2="${s.y}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="${s.x}" cy="${s.y}" r="7" fill="var(--accent)"/><text x="${s.x}" y="${s.y+3.5}" font-size="9" fill="var(--onaccent)" text-anchor="middle">${i+1}</text>`;l+=`<li><span>Shot ${i+1}</span><b>${d} yds</b></li>`;p=s});pts.innerHTML=h;sl.innerHTML=l||'<li class="sub">No shots yet.</li>'}
+map.onclick=e=>{const r=map.getBoundingClientRect();shots.push({x:(e.clientX-r.left)/r.width*300,y:(e.clientY-r.top)/r.height*400});draw()};
+$("#un").onclick=()=>{shots.pop();draw()};$("#cl").onclick=()=>{shots=[];draw()};draw()}
+function shop(){view.onclick=null;view.innerHTML=`<h2>Gear</h2><p class="sub">In the real app, each item links out to a retailer and you earn a small commission.</p><div class="list">${gear.map(g=>`<button class="row"><span>${g[0]}<br><small>${g[1]}</small></span><span aria-hidden="true">›</span></button>`).join("")}</div>`}
+function coach(){
+view.onclick=null;
+const esc=t=>t.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const paint=()=>{$("#ch").innerHTML=chat.map(m=>`<div class="msg ${m[0]}">${m[1]}</div>`).join("");view.scrollTop=view.scrollHeight};
+view.innerHTML=`<h2>Golf coach</h2><p class="sub">Ask anything about your game.</p><div class="chat" id="ch"></div><div class="chips">${["Why do I slice?","Help my putting","Which club?"].map(q=>`<button>${q}</button>`).join("")}</div><div class="inputrow"><input id="q" placeholder="Ask your coach" aria-label="Message"><button class="btn" id="s">Send</button></div>`;
+let busy=false;
+const send=async t=>{t=t.trim();if(!t||busy)return;busy=true;chat.push(["me",esc(t),t]);chat.push(["ai","Thinking…"]);paint();
+let reply;
+try{const r=await fetch("/.netlify/functions/coach",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:chat.slice(1,-1).map(m=>({role:m[0]==="me"?"user":"assistant",content:m[2]}))})});if(!r.ok)throw 0;reply=(await r.json()).reply}
+catch(_){const x=replies.find(x=>x[0].test(t.toLowerCase()));reply=x?x[1]:"I can’t reach the coach right now. Check your connection and try again."}
+chat[chat.length-1]=["ai",esc(reply),reply];busy=false;paint()};
+$("#s").onclick=()=>{send($("#q").value);$("#q").value=""};$("#q").onkeydown=e=>{if(e.key==="Enter")$("#s").click()};
+document.querySelector(".chips").onclick=e=>{if(e.target.tagName==="BUTTON")send(e.target.textContent)};paint()}
+render();
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
