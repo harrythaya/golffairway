@@ -1,5 +1,5 @@
-const C="fairway-v1",F=["/","/index.html","/manifest.json"];
+const C="fairway-v2",F=["/","/index.html","/manifest.json"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(F)));self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
-self.addEventListener("fetch",e=>{const r=e.request;if(r.method!=="GET"||r.url.includes("/.netlify/"))return;
+self.addEventListener("fetch",e=>{const r=e.request;if(r.method!=="GET"||r.url.includes("/.netlify/")||r.destination==="video"||new URL(r.url).origin!==location.origin)return;
 e.respondWith(fetch(r).then(res=>{const cp=res.clone();caches.open(C).then(c=>c.put(r,cp));return res}).catch(()=>caches.match(r)))});
